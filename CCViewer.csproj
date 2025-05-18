@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>ccv</AssemblyName>
+    <VersionPrefix>0.1.0</VersionPrefix>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixPix" Version="0.3.2" />
+  </ItemGroup>
+
+</Project>
