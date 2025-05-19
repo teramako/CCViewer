@@ -59,26 +59,30 @@ async Task WaitInput()
             case { Modifiers: ConsoleModifiers.Control, Key: ConsoleKey.N }:
                 if (!viewer.ShowNext())
                 {
-                    Console.Error.WriteLine($"Already the last page.");
+                    Console.CursorLeft = 0;
+                    Console.Error.Write($"Already the last page.");
                 }
                 break;
             case { KeyChar: 'N' }:
                 if (!viewer.ShowNext(true))
                 {
-                    Console.Error.WriteLine($"Already the last page.");
+                    Console.CursorLeft = 0;
+                    Console.Error.Write($"Already the last page.");
                 }
                 break;
             case { KeyChar: 'p' }:
             case { Modifiers: ConsoleModifiers.Control, Key: ConsoleKey.P }:
                 if (!viewer.ShowPrevious())
                 {
-                    Console.Error.WriteLine($"Already on first page.");
+                    Console.CursorLeft = 0;
+                    Console.Error.Write($"Already on first page.");
                 }
                 break;
             case { KeyChar: 'P' }:
                 if (!viewer.ShowPrevious(true))
                 {
-                    Console.Error.WriteLine($"Already the last page.");
+                    Console.CursorLeft = 0;
+                    Console.Error.Write($"Already the last page.");
                 }
                 break;
             case { Key: ConsoleKey.Escape }:
