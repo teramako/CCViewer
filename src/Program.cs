@@ -93,6 +93,12 @@ async Task WaitInput()
             case { KeyChar: 's' }:
                 _ = viewer.Show(viewer.CurrentIndex, true);
                 break;
+            case { KeyChar: 'm' }:
+                viewer.PageMode = viewer.PageMode == PageMode.LeftToRight
+                                  ? PageMode.RightToLeft
+                                  : PageMode.LeftToRight;
+                viewer.Show(viewer.CurrentIndex);
+                break;
             case { KeyChar: '^' }:
                 _ = viewer.Show(0);
                 break;
@@ -143,6 +149,7 @@ void PrintKeyBinding(int cursorLeft = 0, int cursorTop = 5)
         │ s              => Re-rendering (force single page)           │
         │ ^              => Move the first page                        │
         │ $              => Move the last page                         │
+        │ m              => Toggle Page mode                           │
         │ :              => Enter the comand mode                      │
         ╰──────────────────────────────────────────────────────────────╯
         """);
