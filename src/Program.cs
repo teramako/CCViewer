@@ -81,6 +81,7 @@ async Task WaitInput()
                     Console.Error.WriteLine($"Already the last page.");
                 }
                 break;
+            case { Key: ConsoleKey.Escape }:
             case { KeyChar: 'r' }:
             case { Modifiers: ConsoleModifiers.Control, Key: ConsoleKey.R }:
                 _ = viewer.Show(viewer.CurrentIndex);
@@ -129,16 +130,16 @@ void PrintKeyBinding(int cursorLeft = 0, int cursorTop = 5)
         ╭──────────────────────────────────────────────────────────────╮
         │ Key bindings                                                 │
         ├──────────────────────────────────────────────────────────────┤
-        │ q             => Quit                                        │
-        │ n, Ctrl+n     => Move Next page                              │
-        │ N             => Move Next page (force single page)          │
-        │ p, Ctrl+p     => Move Previous page                          │
-        │ P             => Move Previous page (force single page)      │
-        │ r, Ctrl+r     => Re-rendering the current page(s)            │
-        │ s             => Re-rendering (force single page)            │
-        │ ^             => Move the first page                         │
-        │ $             => Move the last page                          │
-        │ :             => Enter the comand mode                       │
+        │ q              => Quit                                       │
+        │ n, Ctrl+n      => Move Next page                             │
+        │ N              => Move Next page (force single page)         │
+        │ p, Ctrl+p      => Move Previous page                         │
+        │ P              => Move Previous page (force single page)     │
+        │ Esc, r, Ctrl+r => Re-rendering the current page(s)           │
+        │ s              => Re-rendering (force single page)           │
+        │ ^              => Move the first page                        │
+        │ $              => Move the last page                         │
+        │ :              => Enter the comand mode                      │
         ╰──────────────────────────────────────────────────────────────╯
         """);
     Console.SetCursorPosition(p.Left, p.Top);
