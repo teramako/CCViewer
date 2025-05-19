@@ -44,17 +44,35 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
     /// </summary>
     protected static readonly Size CellSize = Sixel.GetCellSize();
 
-    protected static Size GetAdjustSize(SixelEncoder encoder, Size winSize)
+    /// <summary>
+    /// Get the adjusted size of the image to fit in the window and cell width unit
+    /// </summary>
+    /// <param name="imgSize">Image size</param>
+    /// <param name="winSize">Windows size</param>
+    /// <param name="cellSize">Cell(Cursor) size</param>
+    /// <returns></returns>
+    protected static Size GetAdjustSize(Size imgSize, Size winSize, Size cellSize)
     {
-        var imgSize = encoder.CanvasSize;
+        var width = imgSize.Width;
         var maxWidth = Math.Min(imgSize.Width, winSize.Width);
         var maxHeight = Math.Min(imgSize.Height, winSize.Height - (CellSize.Height * 3));
+        double ratio = 1.0;
         if (maxWidth < imgSize.Width || maxHeight < imgSize.Height)
         {
-            double ratio = Math.Min(1.0 * maxWidth / imgSize.Width, 1.0 * maxHeight / imgSize.Height);
-            return new((int)(imgSize.Width * ratio), (int)(imgSize.Height * ratio));
+            ratio = Math.Min(1.0 * maxWidth / imgSize.Width, 1.0 * maxHeight / imgSize.Height);
+            // adjust width to fit in the cell width
+            width = (int)(imgSize.Width * ratio);
+            width -= width % cellSize.Width;
+            // recalculate ratio
+            ratio = 1.0 * width / imgSize.Width;
         }
-        return imgSize;
+        if (imgSize.Width > cellSize.Width)
+        {
+            width -= width % cellSize.Width;
+            ratio = 1.0 * width / imgSize.Width;
+        }
+        var height = (int)(imgSize.Height * ratio);
+        return new(width, height);
     }
 
     protected static async Task RenderImage(SixelEncoder encoder,
@@ -131,7 +149,7 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
         Size winSize = Sixel.GetWindowPixelSize();
         using Stream st1 = entry1.Open();
         using SixelEncoder enc1 = Sixel.CreateEncoder(st1);
-        Size size1 = GetAdjustSize(enc1, winSize);
+        Size size1 = GetAdjustSize(enc1.CanvasSize, winSize, CellSize);
 
         (int cLeft, int cTop) = (0, 0);
 
@@ -147,7 +165,7 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
                 var entry2 = Entries[index + 1];
                 using Stream st2 = entry2.Open();
                 using SixelEncoder enc2 = Sixel.CreateEncoder(st2);
-                Size size2 = GetAdjustSize(enc2, winSize);
+                Size size2 = GetAdjustSize(enc2.CanvasSize, winSize, CellSize);
                 if (size2.Height > size2.Width && size1.Width + size2.Width < winSize.Width)
                 {
                     PageState = PageState.Double;
@@ -176,7 +194,7 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
                 var entry2 = Entries[index - 1];
                 using Stream st2 = entry2.Open();
                 using SixelEncoder enc2 = Sixel.CreateEncoder(st2);
-                Size size2 = GetAdjustSize(enc2, winSize);
+                Size size2 = GetAdjustSize(enc2.CanvasSize, winSize, CellSize);
                 if (size2.Height > size2.Width && size1.Width + size2.Width < winSize.Width)
                 {
                     CurrentIndex = index - 1;
