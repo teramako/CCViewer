@@ -76,7 +76,6 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
     }
 
     protected static async Task RenderImage(SixelEncoder encoder,
-                                            Size size,
                                             int cursorLeft = 0,
                                             int cursorTop = 0,
                                             string header = "")
@@ -84,9 +83,8 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
         Console.SetCursorPosition(cursorLeft, cursorTop);
         await Console.Out.WriteAsync(header);
         Console.SetCursorPosition(cursorLeft, cursorTop + 1);
-        await Console.Out.WriteLineAsync(encoder.Resize(size).Encode());
+        await Console.Out.WriteLineAsync(encoder.Encode());
     }
-
 
     /// <summary>
     /// Image file entires
@@ -150,6 +148,8 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
         using Stream st1 = entry1.Open();
         using SixelEncoder enc1 = Sixel.CreateEncoder(st1);
         Size size1 = GetAdjustSize(enc1.CanvasSize, winSize, CellSize);
+        enc1.Resize(size1);
+        string subject1 = $"{index + 1,3:d}/{Entries.Length,3:d}";
 
         (int cLeft, int cTop) = (0, 0);
 
@@ -166,6 +166,8 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
                 using Stream st2 = entry2.Open();
                 using SixelEncoder enc2 = Sixel.CreateEncoder(st2);
                 Size size2 = GetAdjustSize(enc2.CanvasSize, winSize, CellSize);
+                enc2.Resize(size2);
+                string subject2 = $"{index + 2,3:d}/{Entries.Length,3:d}";
                 if (size2.Height > size2.Width && size1.Width + size2.Width < winSize.Width)
                 {
                     PageState = PageState.Double;
@@ -174,16 +176,16 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
                         case PageMode.RightToLeft:
                             cLeft = (int)Math.Ceiling((double)size2.Width / CellSize.Width);
                             Task.WaitAll([
-                                RenderImage(enc1, size1, cLeft, cTop, $"{index + 1,3:d}/{Entries.Length,3:d}"),
-                                RenderImage(enc2, size2, 0, cTop, $"{index + 2,3:d}/{Entries.Length,3:d}"),
+                                RenderImage(enc1, cLeft, cTop, subject1),
+                                RenderImage(enc2, 0, cTop, subject2),
                             ]);
                             return true;
                         case PageMode.LeftToRight:
                         default:
                             cLeft = (int)Math.Ceiling((double)size1.Width / CellSize.Width);
                             Task.WaitAll([
-                                RenderImage(enc1, size1, 0, cTop, $"{index + 1,3:d}/{Entries.Length,3:d}"),
-                                RenderImage(enc2, size2, cLeft, cTop, $"{index + 2,3:d}/{Entries.Length,3:d}"),
+                                RenderImage(enc1, 0, cTop, subject1),
+                                RenderImage(enc2, cLeft, cTop, subject2),
                             ]);
                             return true;
                     }
@@ -195,6 +197,8 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
                 using Stream st2 = entry2.Open();
                 using SixelEncoder enc2 = Sixel.CreateEncoder(st2);
                 Size size2 = GetAdjustSize(enc2.CanvasSize, winSize, CellSize);
+                enc2.Resize(size2);
+                string subject2 = $"{index,3:d}/{Entries.Length,3:d}";
                 if (size2.Height > size2.Width && size1.Width + size2.Width < winSize.Width)
                 {
                     CurrentIndex = index - 1;
@@ -204,24 +208,23 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
                         case PageMode.RightToLeft:
                             cLeft = (int)Math.Ceiling((double)size1.Width / CellSize.Width);
                             Task.WaitAll([
-                                RenderImage(enc2, size2, cLeft, cTop, $"{index,3:d}/{Entries.Length,3:d}"),
-                                RenderImage(enc1, size1, 0, cTop, $"{index + 1,3:d}/{Entries.Length,3:d}"),
+                                RenderImage(enc2, cLeft, cTop, subject2),
+                                RenderImage(enc1, 0, cTop, subject1),
                             ]);
                             return true;
                         case PageMode.LeftToRight:
                         default:
                             cLeft = (int)Math.Ceiling((double)size2.Width / CellSize.Width);
                             Task.WaitAll([
-                                RenderImage(enc2, size2, 0, cTop, $"{index,3:d}/{Entries.Length,3:d}"),
-                                RenderImage(enc1, size1, cLeft, cTop, $"{index + 1,3:d}/{Entries.Length,3:d}"),
+                                RenderImage(enc2, 0, cTop, subject2),
+                                RenderImage(enc1, cLeft, cTop, subject1),
                             ]);
                             return true;
                     }
                 }
             }
         }
-        RenderImage(enc1, size1, cLeft, cTop, $"{index + 1,3:d}/{Entries.Length,3:d}")
-            .Wait();
+        RenderImage(enc1, cLeft, cTop, subject1).Wait();
         return true;
     }
 
