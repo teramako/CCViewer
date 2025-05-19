@@ -123,6 +123,7 @@ async Task WaitInput()
 
 void PrintKeyBinding(int cursorLeft = 0, int cursorTop = 5)
 {
+    var p = Console.GetCursorPosition();
     Console.SetCursorPosition(cursorLeft, cursorTop);
     Console.WriteLine($"""
         ╭──────────────────────────────────────────────────────────────╮
@@ -140,4 +141,5 @@ void PrintKeyBinding(int cursorLeft = 0, int cursorTop = 5)
         │ :             => Enter the comand mode                       │
         ╰──────────────────────────────────────────────────────────────╯
         """);
+    Console.SetCursorPosition(p.Left, p.Top);
 }
