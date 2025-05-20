@@ -7,7 +7,7 @@ Parser.Default.ParseArguments<Options>(args)
 static void Run(Options opts)
 {
     using var viewer = GetViewer([.. opts.Files]);
-    viewer.Show(0);
+    viewer.Show(opts.Page - 1);
     WaitInput(viewer).Wait();
     Environment.Exit(1);
 }
