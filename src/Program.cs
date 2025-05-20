@@ -20,24 +20,53 @@ static IImageViewer GetViewer(string[] files, PageMode mode)
 
     if (files.Length == 1)
     {
-        var file = files[0];
-        if (!Path.Exists(file))
-            throw new FileNotFoundException("No such file or directory", file);
+        var path = files[0];
+        if (!Path.Exists(path))
+            throw new FileNotFoundException("No such file or directory", path);
 
-        var fileAttr = File.GetAttributes(file);
+        var fileAttr = File.GetAttributes(path);
         if (fileAttr.HasFlag(FileAttributes.Directory))
         {
-            return new FilesViewer(new DirectoryInfo(file), mode);
+            return new FilesViewer(new DirectoryInfo(path), mode);
         }
-        var ext = Path.GetExtension(file);
-        switch (ext.ToUpperInvariant())
+        var ext = Path.GetExtension(path);
+        return ext.ToUpperInvariant() switch
         {
-            case ".ZIP":
-                return new ZipViewer(new FileInfo(path), mode);
-        }
+            ".ZIP" => new ZipViewer(new FileInfo(path), mode),
+            _ => new FilesViewer([new FileInfo(path)], mode),
+        };
+        ;
     }
-
-    return new FilesViewer(files.Select(f => new FileInfo(f)), mode);
+    else
+    {
+        var fileList = new List<FileInfo>();
+        foreach (var path in files)
+        {
+            if (File.Exists(path))
+            {
+                fileList.Add(new FileInfo(path));
+                continue;
+            }
+            if (Directory.Exists(path))
+            {
+                foreach (var filePath in Directory.EnumerateFiles(path))
+                {
+                    fileList.Add(new FileInfo(filePath));
+                }
+                continue;
+            }
+            var f = new FileInfo(path);
+            if ((f.Directory?.Exists ?? false)
+                && (f.Name.Contains('*') || f.Name.Contains('?')))
+            {
+                foreach (var fileInfo in f.Directory.EnumerateFiles(f.Name))
+                {
+                    fileList.Add(fileInfo);
+                }
+            }
+        }
+        return new FilesViewer(fileList, mode);
+    }
 }
 
 static async Task WaitInput(IImageViewer viewer)
