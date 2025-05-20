@@ -6,13 +6,14 @@ Parser.Default.ParseArguments<Options>(args)
 
 static void Run(Options opts)
 {
-    using var viewer = GetViewer([.. opts.Files]);
+    var pageMode = opts.CommicMode ? PageMode.RightToLeft : PageMode.LeftToRight;
+    using var viewer = GetViewer([.. opts.Files], pageMode);
     viewer.Show(opts.Page - 1);
     WaitInput(viewer).Wait();
     Environment.Exit(1);
 }
 
-static IImageViewer GetViewer(string[] files)
+static IImageViewer GetViewer(string[] files, PageMode mode)
 {
     if (files.Length == 0)
         throw new FileNotFoundException();
@@ -26,17 +27,17 @@ static IImageViewer GetViewer(string[] files)
         var fileAttr = File.GetAttributes(file);
         if (fileAttr.HasFlag(FileAttributes.Directory))
         {
-            return new FilesViewer(new DirectoryInfo(file));
+            return new FilesViewer(new DirectoryInfo(file), mode);
         }
         var ext = Path.GetExtension(file);
         switch (ext.ToUpperInvariant())
         {
             case ".ZIP":
-                return new ZipViewer(new FileInfo(file));
+                return new ZipViewer(new FileInfo(path), mode);
         }
     }
 
-    return new FilesViewer(files.Select(f => new FileInfo(f)));
+    return new FilesViewer(files.Select(f => new FileInfo(f)), mode);
 }
 
 static async Task WaitInput(IImageViewer viewer)

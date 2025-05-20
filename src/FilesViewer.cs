@@ -21,8 +21,9 @@ internal class FilesViewer : ImageViewer<FileEntry>
     /// <summary>
     /// Constructor for the specified files
     /// </summary>
-    public FilesViewer(IEnumerable<FileInfo> files)
+    public FilesViewer(IEnumerable<FileInfo> files, PageMode pageMode = PageMode.LeftToRight)
     {
+        PageMode = pageMode;
         Entries = files.AsParallel()
                        .Where(EntryFilter)
                        .OrderBy(static f => f.Name)
@@ -33,11 +34,12 @@ internal class FilesViewer : ImageViewer<FileEntry>
     /// <summary>
     /// Constructor for the directory
     /// </summary>
-    public FilesViewer(DirectoryInfo dir)
+    public FilesViewer(DirectoryInfo dir, PageMode pageMode = PageMode.LeftToRight)
     {
         if (!dir.Exists)
             throw new DirectoryNotFoundException($"No such directory: {dir.FullName}");
 
+        PageMode = pageMode;
         Entries = dir.EnumerateFiles()
                      .AsParallel()
                      .Where(EntryFilter)

@@ -94,7 +94,7 @@ internal abstract class ImageViewer<TEntry> : IImageViewer where TEntry : IEntry
     public int CurrentIndex { get; protected set; }
     public int LastIndex => Entries.Length - 1;
 
-    public PageMode PageMode { get; set; } = PageMode.RightToLeft;
+    public PageMode PageMode { get; set; } = PageMode.LeftToRight;
     protected PageState PageState { get; set; } = PageState.None;
 
     /// <summary>

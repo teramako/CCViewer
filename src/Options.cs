@@ -6,6 +6,13 @@ internal class Options
             HelpText = "Page number to display (starting with 1)")]
     public int Page { get; set; }
 
+    [Option('j', "jcommic", Required = false, Default = false,
+            HelpText = """
+                       Japanese Commic Mode
+                       (Page direction: Right to Left)
+                       """)]
+    public bool CommicMode { get; set; }
+
     [Value(0, MetaName = "files",
            HelpText = "a zip file or a directory or image files")]
     public IEnumerable<string> Files { get; set; } = [];

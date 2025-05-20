@@ -22,8 +22,9 @@ internal class ZipEntry(ZipArchiveEntry zipEntry) : IEntry<ZipArchiveEntry>
 /// </summary>
 internal class ZipViewer : ImageViewer<ZipEntry>
 {
-    public ZipViewer(FileInfo file)
+    public ZipViewer(FileInfo file, PageMode pageMode = PageMode.LeftToRight)
     {
+        PageMode = pageMode;
         Zip = new(file.OpenRead(), ZipArchiveMode.Read, false, Encoding.UTF8);
         Entries = Zip.Entries.AsParallel()
                              .Where(EntryFilter)
