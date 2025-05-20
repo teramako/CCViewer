@@ -1,17 +1,18 @@
 using System.Globalization;
+using CommandLine;
 
-if (args.Length < 1)
+Parser.Default.ParseArguments<Options>(args)
+    .WithParsed(Run);
+
+static void Run(Options opts)
+{
+    using var viewer = GetViewer([.. opts.Files]);
+    viewer.Show(0);
+    WaitInput(viewer).Wait();
     Environment.Exit(1);
+}
 
-using var viewer = GetViewer(args);
-
-Console.Clear();
-Task keyTask = WaitInput();
-viewer.Show(0);
-keyTask.Wait();
-Environment.Exit(0);
-
-IImageViewer GetViewer(string[] files)
+static IImageViewer GetViewer(string[] files)
 {
     if (files.Length == 0)
         throw new FileNotFoundException();
@@ -38,7 +39,7 @@ IImageViewer GetViewer(string[] files)
     return new FilesViewer(files.Select(f => new FileInfo(f)));
 }
 
-async Task WaitInput()
+static async Task WaitInput(IImageViewer viewer)
 {
     do
     {
@@ -132,7 +133,7 @@ async Task WaitInput()
     while (true);
 }
 
-void PrintKeyBinding(int cursorLeft = 0, int cursorTop = 5)
+static void PrintKeyBinding(int cursorLeft = 0, int cursorTop = 5)
 {
     var p = Console.GetCursorPosition();
     Console.SetCursorPosition(cursorLeft, cursorTop);
